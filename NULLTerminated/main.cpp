@@ -11,9 +11,16 @@ void shrink(char str[]);     //Удаляет из строки лишние п�
 bool is_palindrome(char str[]); //Опредиляет, является ли строка палиндромом
 bool is_int_number(char str[]);	//Определяет, является ли строка целым числом
 int  to_int_number(char str[]);	//Если строка - целое число, функция вернет его числовое значение.
+void remove_symbol(char str[], char symbol);
+bool is_bin_number(char str[]);
+char* dec_to_bin(int decimal);
+int bin_to_dec(char str[]);
+
+
 void Hardcore(char str[]);
 
 //#define STRING_DECLARATION
+//#define CHECK1
 
 void main()
 {
@@ -29,24 +36,35 @@ for(int i=0;i<sizeof(str);i++)cout<<str[i];cout<<endl;*/
 	
 #endif // STRING_DECLARATION 
 
-	const int n = 30;
+	const int n = 256;
 	char str[n] = {};
-	cout << "Введите строку: ";
+	//cout << "Введите строку: ";
 	//cin >> str1;
 	SetConsoleCP(1251);
 	SetConsoleOutputCP(1251);
-	cin.getline(str, n); //cp1251 
-	
-	//ASCII();
-	cout << endl <<"количество элементов: "<<endl<< StringLenght(str) << endl<<endl;
-	to_upper(str);	cout <<"строка в верхнем регистре: "<<endl<< str << endl<<endl;
-	to_lower(str);	cout << "Строка в нижнем регистре: " <<endl<< str << endl << endl;
-	cpitalize(str);	cout <<"Первая буква каждого слова заглавная: "<< endl<<str << endl << endl;
+	//cin.getline(str, n); //cp1251 
+#ifdef CHECK1 
+//ASCII();
+	cout << endl << "количество элементов: " << endl << StringLenght(str) << endl << endl;
+	to_upper(str);	cout << "строка в верхнем регистре: " << endl << str << endl << endl;
+	to_lower(str);	cout << "Строка в нижнем регистре: " << endl << str << endl << endl;
+	cpitalize(str);	cout << "Первая буква каждого слова заглавная: " << endl << str << endl << endl;
 	shrink(str);	cout << "Удаление лишних пробелов: " << endl << str << endl << endl;
-	if (is_palindrome(str)) cout << "Это палиндром!"<<endl << endl; else cout<<"Это не палиндром!" << endl << endl;
-	if (is_int_number(str)) cout << "Это целое число!"<<endl << endl; else cout<<"Это не целое число!" << endl << endl;
-	if (is_int_number(str) == true) cout <<"Числовое значение: "<< to_int_number(str) << endl << endl; else;
-	Hardcore(str);
+	//if (is_palindrome(str)) cout << "Это палиндром!"<<endl << endl; else cout<<"Это не палиндром!" << endl << endl;
+	cout << "Строка " << (is_palindrome(str) ? "является полиндром" : "НЕ является полиндромом") << endl << endl;
+	//if (is_int_number(str)) cout << "Это целое число!"<<endl << endl; else cout<<"Это не целое число!" << endl << endl;  
+#endif // CHECK1 
+
+	//cout << "Строка " << str << (is_int_number(str) ? "" : " НЕ") << " явлется целым числом" << endl << endl;
+	//if (is_int_number(str) == true) cout <<"Числовое значение: "<< to_int_number(str) << endl << endl; else;
+	//cout << to_int_number(str) *2<< endl << endl;
+	//Hardcore(str);
+
+	//cout << is_bin_number(str) << endl;
+	int decimal;
+	cout << "Введите десятичное число: "; cin >> decimal;
+	cout << dec_to_bin(decimal) << endl;
+	cout << str << "(bin) = " << bin_to_dec(str) << "(dec)\n";
 
 	
 	
@@ -118,38 +136,90 @@ void shrink(char str[])
 
 bool is_palindrome(char str[])
 {
-	to_lower(str);
-int s = StringLenght(str)-1;
-int check=0;
-	for (int i = 0, j =s; i<s, j > 0; i++, j--)
+	int lenght = StringLenght(str);
+	char* buffer = new char[lenght+1] {};
+	for (int i = 0; i < lenght; i++)
 	{
-		if (str[i] != str[j])
-		{
-			check++;
-		}		
+		buffer[i] = str[i];
 	}
-	if (check == 0)return true; else return false;
+
+	to_lower(buffer);
+	remove_symbol(buffer, ' ');
+	lenght = StringLenght(buffer);
+	bool is_palindrome = true;
+	for (int i = 0; i < lenght/2; i++)
+	{
+		if (buffer[i] != buffer[lenght - 1 - i])
+			is_palindrome = false;
+		break;
+	}
+	delete[] buffer;
+	return is_palindrome;
+
+	//int s = StringLenght(str)-1;
+//int check=0;
+//	for (int i = 0, j =s; i<s, j > 0; i++, j--)
+//	{
+//		if (str[i] != str[j])
+//		{
+//			check++;
+//		}		
+//	}
+//	if (check == 0)return true; else return false;
 }
 
 bool is_int_number(char str[])
 {
-	int check = 0;
+
+	for (int i = 0; str[i]; i++)
+	{
+		if ((str[i] < '0' || str[i] > '9')&& str[i] != ' ') return false;	
+		if (str[i] == ' ' && str[i + 1]== ' ')return false;
+	}
+return true;
+	/*int check = 0;
 	for (int i = 0; str[i]; i++)
 	{
 		if (str[i] >= '0' && str[i] <= '9')check; else check++;			
 	}
-	if (check == 0)return true; else return false;
+	if (check == 0)return true; else return false;*/
 }
 
 int  to_int_number(char str[])
 {	
-	int sum = 0;	
+	if (!is_int_number(str))return 0;
+	int decimal = 0; //десятичное значение числа
+	for (int i = 0; str[i]; i++)
+	{
+		if(str[i]>='0' && str[i]<='9')
+		{
+			decimal *= 10;// сдвигаем число на один разряд влево
+			decimal += str[i] - '0';
+		}
+	}
+	return decimal;
+
+	/*int sum = 0;	
 		for (int i = 0; str[i]; i++)
 		{
 			int num = (str[i] - 48);
 			sum = sum * 10 + num;
 		}
-		return sum;	
+		return sum;	*/
+}
+
+void remove_symbol(char str[], char symbol)
+{
+	for (int i = 0; str[i]; i++)
+	{
+		while (str[i] == symbol)
+		{
+			for (int j = i ; str[j]; j++)
+			{
+				str[j] = str[j + 1];
+			}
+		}
+	}
 }
 
 void Hardcore(char str[])
@@ -227,4 +297,72 @@ void Hardcore(char str[])
 		cout << text[i] <<" ";
 	}
 	cout << endl << endl;
+}
+
+bool is_bin_number(char str[])
+{
+	for (int i = 0; str[i]; i++)
+	{
+		if (str[i] != '0' && str[i] != '1' && str[i]!=' ')
+			return false;
+		if (str[i] == ' ' && str[i - 1] == ' ' && str[i + 1] == ' ')
+			return false;
+	}
+	return true;
+}
+
+char* dec_to_bin(int decimal)
+{
+	//1)Определим кол-во двоичных разрядов
+	int capacity = 0;
+	int buffer = decimal;
+	for (; buffer > 0; capacity++)
+	{
+		buffer /= 2;
+		if (capacity % 4 == 0)capacity++;
+	}
+
+	//2)Выделяем память под двоичное число
+	char* bin = new char[capacity + 1]{};
+	//3) Получаем разаряды двоичного числа, и сохраняем их в строку
+	for (int i = 0; decimal; i++)
+	{
+		
+		if (i % 4 == 0)
+		{
+			bin[i] = ' ';
+		}
+		else
+		{
+			bin[i] = decimal % 2 + '0';   //получаем младший разряд числа
+			decimal /= 2;                 // убираем младший разряд из числа
+		}
+	}
+	return bin;
+}
+
+int bin_to_dec(char str[])
+{
+if (!is_bin_number(str))return 0;
+#ifdef DEBUG
+	
+	int decimal = 0; //конечное десятично число
+	int weight = 1;  // весовой коэффициент разряда 2^n
+	int capacity = strlen(str); // разрядность двоичного числа
+	for (int i = capacity - 1; i >= 0; i--)
+	{
+		decimal +=
+	}
+#endif // DEBUG
+
+	int decimal = 0;
+	for (int i = 0; str[i]; i++)
+	{
+		if (str[i]!=' ')
+		{
+			decimal *= 2;
+			decimal += str[i] - '0';
+		}
+	}
+	return decimal;
 }
