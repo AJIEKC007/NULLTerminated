@@ -15,6 +15,8 @@ void remove_symbol(char str[], char symbol);
 bool is_bin_number(char str[]);
 char* dec_to_bin(int decimal);
 int bin_to_dec(char str[]);
+bool is_hex_number(char str[]);
+int hex_to_dec(char hex[]);
 
 
 void Hardcore(char str[]);
@@ -61,10 +63,13 @@ for(int i=0;i<sizeof(str);i++)cout<<str[i];cout<<endl;*/
 	//Hardcore(str);
 
 	//cout << is_bin_number(str) << endl;
-	int decimal;
+	/*int decimal;
 	cout << "Введите десятичное число: "; cin >> decimal;
 	cout << dec_to_bin(decimal) << endl;
-	cout << str << "(bin) = " << bin_to_dec(str) << "(dec)\n";
+	cout << str << "(bin) = " << bin_to_dec(str) << "(dec)\n";*/
+	cout << "Введите шестнадцатиричное число: "; cin >> str;
+	cout << "Строка " << (is_hex_number(str) ? "" : "НЕ ") << "является шестнадцетиричным числом! \n";
+	cout << str << "(hex) = " << hex_to_dec(str) << "(dec)\n";
 
 	
 	
@@ -316,7 +321,7 @@ char* dec_to_bin(int decimal)
 	//1)Определим кол-во двоичных разрядов
 	int capacity = 0;
 	int buffer = decimal;
-	for (; buffer > 0; capacity++)
+	for (; buffer; capacity++)
 	{
 		buffer /= 2;
 		if (capacity % 4 == 0)capacity++;
@@ -325,14 +330,14 @@ char* dec_to_bin(int decimal)
 	//2)Выделяем память под двоичное число
 	char* bin = new char[capacity + 1]{};
 	//3) Получаем разаряды двоичного числа, и сохраняем их в строку
-	for (int i = 0; decimal; i++)
+	for (int i = 0,digit=0; decimal; i++,digit++)
 	{
-		
-		if (i % 4 == 0)
-		{
-			bin[i] = ' ';
-		}
-		else
+		//
+		//if (digit % 4 == 0)
+		//{
+		//	//bin[i] = ' ';
+		//}
+		//else
 		{
 			bin[i] = decimal % 2 + '0';   //получаем младший разряд числа
 			decimal /= 2;                 // убираем младший разряд из числа
@@ -363,6 +368,34 @@ if (!is_bin_number(str))return 0;
 			decimal *= 2;
 			decimal += str[i] - '0';
 		}
+	}
+	return decimal;
+}
+
+bool is_hex_number(char str[])
+{
+	for (int i = str[0] == '0' && (str[1]=='x' || str[1] == 'X')?2 :0; str[i]; i++)
+	{
+		if (
+			!(str[i] >= '0' && str[i] <= '9') &&
+			!(str[i] >= 'A' && str[i] <= 'F') &&
+			!(str[i] >= 'a' && str[i] <= 'f')
+			)
+			return false;
+	}
+	return true;
+}
+
+int hex_to_dec(char hex[])
+{
+	if (!is_hex_number(hex))return 0;
+	int decimal = 0;
+	for (int i = 0; hex[i]; i++)
+	{
+		decimal *= 16;
+		if (hex[i] >= '0' && hex[i] <= '9')decimal += hex[i] - '0';
+		if (hex[i] >= 'A' && hex[i] <= 'F')decimal += hex[i] - 'A' + 10;
+		if (hex[i] >= 'a' && hex[i] <= 'f')decimal += hex[i] - 'a' + 10;
 	}
 	return decimal;
 }
